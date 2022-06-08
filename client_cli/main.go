@@ -10,7 +10,6 @@ import (
 	"strconv"
 
 	"golang.org/x/crypto/ssh"
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 const READ_BUF_SIZE = 1024
@@ -86,46 +85,13 @@ func main() {
 	defer session.Close()
 
 	// 建立终端
-	fd := int(os.Stdin.Fd())
-	oldState, err := terminal.MakeRaw(fd)
-	if err != nil {
-		log.Printf("Terminal MakeRaw FAILED: %v", err)
-	}
-	defer terminal.Restore(fd, oldState)
-
 	session.Stdout = os.Stdout
 	session.Stderr = os.Stderr
 	session.Stdin = os.Stdin
-
-	// 美化
-	// termWidth, termHeight, err := terminal.GetSize(fd)
-	// if err != nil {
-	// 	log.Printf("Terminal GetSize FAILED: %v", err)
-	// }
-
-	// modes := ssh.TerminalModes{
-	// 	ssh.ECHO:          1,
-	// 	ssh.TTY_OP_ISPEED: 14400,
-	// 	ssh.TTY_OP_OSPEED: 14400,
-	// }
-	// if err := session.RequestPty("xterm-256color", termHeight, termWidth, modes); err != nil {
-	// 	log.Printf("Session RequestPty FAILED: %v", err)
-	// }
+	// 交互
+	log.Println(" ==== START SHELL ====")
+	defer log.Println(" ===== END SHELL =====")
 	session.Shell()
 	session.Wait()
-
-	// 交互
-	// reader := bufio.NewReader(os.Stdin)
-	// output := make([]byte, READ_BUF_SIZE)
-	// for {
-	// 	fmt.Printf(Cfg.Prompt)
-	// 	input, _ := reader.ReadString('\n')
-	// 	tls_conn.Write([]byte(input))
-	// 	num, err := tls_conn.Read(output)
-	// 	if err != nil {
-	// 		log.Panicf("Read ERROR: %v\n", err)
-	// 	}
-	// 	fmt.Printf("%v", string(output[:num]))
-	// }
 
 }

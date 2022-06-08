@@ -7,8 +7,8 @@ accounts:
 # 调试模式 yes/no （调试模式下信息会带有行号，并且不写入日志，而是打印与屏幕）
 debug: yes
 
-# 终端提示符 %u 为用户名 %h 为用户ip:port
-prompt: "[%u@%h]$ "
+# 进入终端时的目录
+shell_path: "~"
 
 # 端口
 port: 10443

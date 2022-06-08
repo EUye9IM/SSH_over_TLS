@@ -7,7 +7,6 @@ account:
 # 调试模式 yes/no （调试模式下一些信息会带有行号，并且不验证 TLS 证书）
 debug: yes
 
-
 # 服务地址
 host: 127.0.0.1
 

@@ -86,3 +86,4 @@ lint/tmp/
 
 *.exe
 *.exe~
+/tls-ssh*

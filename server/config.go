@@ -12,7 +12,7 @@ const DEFAULT_CONFIG_PATH = "server/conf.yml"
 var Cfg struct {
 	Accounts    map[string]string // username: password
 	Debug       bool
-	Prompt      string
+	Shell_path  string
 	Port        int
 	Log         string
 	Certificate string

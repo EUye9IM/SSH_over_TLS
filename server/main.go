@@ -7,11 +7,11 @@ import (
 	"log"
 	"net"
 	"os"
+	"os/exec"
+	"runtime"
 	"strconv"
-	"strings"
 
 	"golang.org/x/crypto/ssh"
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 // 读取配置文件后的回调
@@ -29,7 +29,17 @@ func onConfig() {
 	}
 }
 
+var SHELL_CMD []string
+
 func main() {
+	// 检查操作系统
+	switch runtime.GOOS {
+	case "linux":
+		SHELL_CMD = []string{"bash"}
+	case "windows":
+		SHELL_CMD = []string{"powershell", "-NoLogo", "-NoExit", "cd " + Cfg.Shell_path}
+
+	}
 	// 读取、设定密钥、证书
 	cert, err := tls.LoadX509KeyPair(Cfg.Certificate, Cfg.Private_key)
 	if err != nil {
@@ -124,21 +134,21 @@ func handleConn(net_conn net.Conn) {
 			}
 		}(requests)
 
-		prompt := Cfg.Prompt
-		prompt = strings.ReplaceAll(prompt, "%u", conn.User())
-		prompt = strings.ReplaceAll(prompt, "%h", conn.RemoteAddr().String())
-		term := terminal.NewTerminal(channel, prompt)
-
 		go func() {
 			defer channel.Close()
-			for {
-				line, err := term.ReadLine()
-				if err != nil {
-					break
-				}
-				log.Printf("Read line: %v", line)
-				term.Write([]byte("You just send :" + line + "\n"))
+			// 打开终端
+			cmd := exec.Command(SHELL_CMD[0], SHELL_CMD[1:]...)
+			// 运行
+			cmd.Stdin = channel
+			cmd.Stdout = channel
+			cmd.Stderr = channel
+			log.Printf("Start shell")
+			err = cmd.Run()
+			if err != nil {
+				log.Printf("Start command ERROR: %v", err)
+				return
 			}
+			log.Printf("End shell")
 		}()
 	}
 }
