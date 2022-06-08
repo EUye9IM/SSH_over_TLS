@@ -10,7 +10,9 @@ import (
 const DEFAULT_CONFIG_PATH = "server/conf.yml"
 
 var Cfg struct {
+	Accounts    map[string]string // username: password
 	Debug       bool
+	Prompt      string
 	Port        int
 	Log         string
 	Certificate string
@@ -26,7 +28,7 @@ func init() {
 	if conf_file, err := ioutil.ReadFile(config_path); err != nil {
 		panic("Cannot open file: " + config_path + ".\n" + err.Error())
 	} else if err := yaml.Unmarshal(conf_file, &Cfg); err != nil {
-		panic("File: " + config_path + " error.\n" + err.Error())
+		panic("File: " + config_path + " unmarshal falied.\n" + err.Error())
 	}
 
 	onConfig()

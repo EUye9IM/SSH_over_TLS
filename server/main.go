@@ -1,12 +1,17 @@
 package main
 
 import (
-	"bufio"
 	"crypto/tls"
+	"errors"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
 	"strconv"
+	"strings"
+
+	"golang.org/x/crypto/ssh"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 // 读取配置文件后的回调
@@ -28,7 +33,7 @@ func main() {
 	// 读取、设定密钥、证书
 	cert, err := tls.LoadX509KeyPair(Cfg.Certificate, Cfg.Private_key)
 	if err != nil {
-		log.Panicf("LoadX509KeyPair ERROR: %v", err)
+		log.Panicf("LoadX509KeyPair FAILED: %v", err)
 	}
 	tls_config := &tls.Config{Certificates: []tls.Certificate{cert}}
 
@@ -41,6 +46,7 @@ func main() {
 	defer listener.Close()
 	log.Printf("Listening at: %v", Cfg.Port)
 
+	// 接受到一个新连接
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -52,25 +58,87 @@ func main() {
 	}
 }
 
-func handleConn(conn net.Conn) {
-	defer conn.Close()
-	r := bufio.NewReader(conn)
+// 新连接处理线程
+func handleConn(net_conn net.Conn) {
+	defer net_conn.Close()
 
-	for {
-		// Read
-		msg, err := r.ReadString('\n')
-		if err != nil {
-			log.Printf("Read string ERROR: %v", err)
-			return
-		}
-		log.Printf("Read SUCCESS: %v", msg)
+	// 服务安全配置
+	server_config := &ssh.ServerConfig{
+		PasswordCallback: func(
+			c ssh.ConnMetadata, password []byte,
+		) (*ssh.Permissions, error) {
+			pw, ok := Cfg.Accounts[c.User()]
+			if ok && pw == string(password) {
+				return nil, nil
+			}
+			return nil, errors.New("password rejected for " + c.User())
+		},
+	}
+	privateBytes, err := ioutil.ReadFile(Cfg.Private_key)
+	if err != nil {
+		log.Fatal("Failed to load private key: ", err)
+	}
 
-		// response
-		_, err = conn.Write([]byte(msg))
-		if err != nil {
-			log.Printf("Write string ERROR: %v", err)
-			return
+	private, err := ssh.ParsePrivateKey(privateBytes)
+	if err != nil {
+		log.Fatal("Failed to parse private key: ", err)
+	}
+
+	server_config.AddHostKey(private)
+
+	// TLS 基础上建立连接
+	conn, chans, reqs, err := ssh.NewServerConn(net_conn, server_config)
+	if err != nil {
+		log.Printf("Handshake FAILED: %v", err)
+		return
+	}
+	log.Printf("Login SUCCESS: %v", conn.User())
+
+	// 回调设置
+	// The incoming Request channel must be serviced.
+	go ssh.DiscardRequests(reqs)
+
+	// Service the incoming Channel channel.
+	for newChannel := range chans {
+		// Channels have a type, depending on the application level
+		// protocol intended. In the case of a shell, the type is
+		// "session" and ServerShell may be used to present a simple
+		// terminal interface.
+		if newChannel.ChannelType() != "session" {
+			newChannel.Reject(ssh.UnknownChannelType, "unknown channel type")
+			log.Printf("Receive unknown channel type: %v", newChannel.ChannelType())
+			continue
 		}
-		log.Printf("Write SUCCESS")
+		channel, requests, err := newChannel.Accept()
+		if err != nil {
+			log.Printf("Accept channel ERROR: %v", err)
+			continue
+		}
+
+		// Sessions have out-of-band requests such as "shell",
+		// "pty-req" and "env".  Here we handle only the
+		// "shell" request.
+		go func(in <-chan *ssh.Request) {
+			for req := range in {
+				req.Reply(req.Type == "shell", nil)
+			}
+		}(requests)
+
+		prompt := Cfg.Prompt
+		prompt = strings.ReplaceAll(prompt, "%u", conn.User())
+		prompt = strings.ReplaceAll(prompt, "%h", conn.RemoteAddr().String())
+		term := terminal.NewTerminal(channel, prompt)
+
+		go func() {
+			defer channel.Close()
+			for {
+				line, err := term.ReadLine()
+				if err != nil {
+					break
+				}
+				log.Printf("Read line: %v", line)
+				term.Write([]byte("You just send :" + line + "\n"))
+			}
+		}()
 	}
 }

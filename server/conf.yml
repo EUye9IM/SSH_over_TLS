@@ -1,11 +1,19 @@
 ---
-# 调试模式 yes/no
+# 账户密码 (用户名: 密码)
+accounts:
+  root: root123
+  admin: admin123
+
+# 调试模式 yes/no （调试模式下信息会带有行号，并且不写入日志，而是打印与屏幕）
 debug: yes
 
-# 端口
-port: 443
+# 终端提示符 %u 为用户名 %h 为用户ip:port
+prompt: "[%u@%h]$ "
 
-# 日志位置
+# 端口
+port: 10443
+
+# 日志位置 （调试模式下该配置无效）
 log: server.log
 
 # 证书文件

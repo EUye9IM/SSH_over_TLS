@@ -1,2 +1,2 @@
-go build ./server
-go build ./client
+go build -mod=vendor ./server
+go build -mod=vendor ./client_cli
