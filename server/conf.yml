@@ -1,0 +1,16 @@
+---
+# 调试模式 yes/no
+debug: yes
+
+# 端口
+port: 443
+
+# 日志位置
+log: server.log
+
+# 证书文件
+certificate: sign/server.csr
+
+# 私钥文件
+private_key: sign/server.key
+...
