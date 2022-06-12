@@ -17,8 +17,8 @@ port: 10443
 log: server.log
 
 # 证书文件
-certificate: sign/server.csr
+certificate: sign/server.pem.csr
 
 # 私钥文件
-private_key: sign/server.key
+private_key: sign/server.pem.key
 ...
