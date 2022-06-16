@@ -1,5 +1,5 @@
 # server key&crt
-HOST=localhost
+HOST=127.0.0.1
 
 openssl req -new \
 	-newkey rsa:2048 \
