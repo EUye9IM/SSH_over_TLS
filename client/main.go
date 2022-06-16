@@ -15,8 +15,6 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-const READ_BUF_SIZE = 1024
-
 // 读取配置文件后的回调
 func onConfig() {
 	// 日志

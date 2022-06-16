@@ -7,7 +7,7 @@ accounts:
   admin3: admin123
 
 # 调试模式 yes/no （调试模式下信息会带有行号，并且不写入日志，而是打印与屏幕）
-debug: yes
+debug: no
 
 # 进入终端时的目录
 shell_path: "~"

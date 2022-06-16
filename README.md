@@ -10,6 +10,9 @@ ssh_over_tls
  |   |- config.go             命令行参数解析与配置文件读取
  |   `- main.go               客户端主程序
  |
+ |- img                       报告中图片
+ |   `- ...
+ |
  |- server                    由 golang 实现的服务端
  |   |- config.go             命令行参数解析与配置文件读取
  |   `- main.go               服务端主程序
@@ -24,6 +27,7 @@ ssh_over_tls
  |- go.sum                    golang 包管理相关文件
  |- LICENSE                   项目开源许可证
  |- README.md                 自述文件
+ |- report.md                 相关课程部分报告
  `- sign.sh                   生成私钥(pem.key)与证书(pem.cer)的脚本
 
 ```
