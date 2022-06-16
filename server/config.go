@@ -7,7 +7,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const DEFAULT_CONFIG_PATH = "server/conf.yml"
+const DEFAULT_CONFIG_PATH = "conf.yml"
 
 var Cfg struct {
 	Accounts    map[string]string // username: password

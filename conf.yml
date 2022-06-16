@@ -2,7 +2,9 @@
 # 账户密码 (用户名: 密码)
 accounts:
   root: root123
-  admin: admin123
+  admin1: admin123
+  admin2: admin123
+  admin3: admin123
 
 # 调试模式 yes/no （调试模式下信息会带有行号，并且不写入日志，而是打印与屏幕）
 debug: yes
@@ -11,14 +13,14 @@ debug: yes
 shell_path: "~"
 
 # 端口
-port: 10443
+port: 443
 
 # 日志位置 （调试模式下该配置无效）
 log: server.log
 
 # 证书文件
-certificate: sign/server.pem.csr
+certificate: pem.cer
 
 # 私钥文件
-private_key: sign/server.pem.key
+private_key: pem.key
 ...

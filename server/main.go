@@ -37,7 +37,7 @@ func main() {
 	case "linux":
 		SHELL_CMD = []string{"bash"}
 	case "windows":
-		SHELL_CMD = []string{"powershell", "-NoLogo", "-NoExit", "cd " + Cfg.Shell_path}
+		SHELL_CMD = []string{"powershell", "-NoLogo", "-NoExit", "-NonInteractive", "cd " + Cfg.Shell_path}
 
 	}
 	// 读取、设定密钥、证书
